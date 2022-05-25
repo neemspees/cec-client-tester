@@ -65,12 +65,6 @@ export default class CecClient {
     }
 
     public async changeSource(source: VideoSource) {
-        // const ownSource = await this.setActiveSourceAndGetTXFrames();
-
-        // if (source === ownSource || source === 'self') {
-        //     return;
-        // }
-
         const map = {
             'self': 'as',
             'tv': 'is',
