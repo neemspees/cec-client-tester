@@ -15,10 +15,12 @@ enum Vendor {
 export default class CecClient {
     static readonly ERROR_EVENT_WAITER_TIMEOUT = 'Event waiter timed out';
     static readonly ERROR_FRAMES_NOT_MAPPABLE_TO_SOURCE = 'source frames not mapable';
-
+    
     private static readonly EVENT_WAITING_FOR_INPUT = 'waiting_for_input';
     private static readonly EVENT_FRAMES_SOURCE = 'frames_source';
     private static readonly EVENT_FRAMES_VENDOR_ID = 'frames_vendor_id';
+    
+    public debug = false;
 
     private process: ChildProcessByStdio<Writable, Readable, null>|null = null;
     private eventBus: EventEmitter;
@@ -41,7 +43,7 @@ export default class CecClient {
         rl.once('close', () => rl.removeListener('line', lineListener));
 
         await this.awaitCecEvent(CecClient.EVENT_WAITING_FOR_INPUT);
-        console.log('Cec client started');
+        console.log('cec-client started');
     }
 
     handleProcessClose(): void {
@@ -120,6 +122,7 @@ export default class CecClient {
 
     /**
      * Sends as command and returns the tx frames for setting it as active source manually
+     * For now this is the only way I know how to get the HDMI port we're attached to
      * Quick & Dirty (╯°□°）╯︵ ┻━┻
      */
     private async setActiveSourceAndGetTXFrames(): Promise<VideoSource> {
@@ -147,6 +150,10 @@ export default class CecClient {
             {
                 needles: [ 'DEBUG', 'NOTICE' ],
                 action: (line: string) => {
+                    if (! this.debug) {
+                        return;
+                    }
+
                     this.logResponse(line, false);
                 },
             },
